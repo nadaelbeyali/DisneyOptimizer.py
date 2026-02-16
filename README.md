@@ -2,7 +2,7 @@
 
 ### Project Overview
 This project is a high-scale logistical simulation of **Walt Disney World's Magic Kingdom**. Using Python and graph theory, it calculates the most efficient route for guests by balancing physical walking distances with real-time attraction wait times.
-![Magic Kingdom Map Output](IMG_0981.jpg)
+![Magic Kingdom Map Output](Map.png)
 
 
 ### Key Technical Features
