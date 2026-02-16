@@ -1,0 +1,97 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# 1. ARCHITECTURE: Define the Magic Kingdom Network
+G = nx.Graph()
+
+# Walking paths based on Magic Kingdom's "Spoke and Wheel" layout
+# Format: (Node A, Node B, Walking Minutes)
+mk_paths = [
+    ("Entrance", "Main Street Hub", 5),
+    ("Main Street Hub", "Tomorrowland", 4),
+    ("Main Street Hub", "Adventureland", 4),
+    ("Main Street Hub", "Liberty Square", 3),
+    ("Tomorrowland", "TRON Lightcycle", 3),
+    ("Tomorrowland", "Space Mountain", 2),
+    ("Tomorrowland", "Fantasyland", 7), 
+    ("Main Street Hub", "Fantasyland", 5), 
+    ("Fantasyland", "Seven Dwarfs Mine Train", 2),
+    ("Liberty Square", "Frontierland", 2),
+    ("Frontierland", "Tiana's Bayou Adventure", 4),
+    ("Adventureland", "Frontierland", 3)
+]
+G.add_weighted_edges_from(mk_paths, weight='walking_time')
+
+# 2. DATA: Current Wait Times (2026 Season)
+# Change these values to see the 'Gold Path' shift!
+wait_times = {
+    "Entrance": 0,
+    "Main Street Hub": 0,
+    "Tomorrowland": 0,
+    "Adventureland": 0,
+    "Liberty Square": 0,
+    "Fantasyland": 0,
+    "Frontierland": 0,
+    "TRON Lightcycle": 110,
+    "Space Mountain": 55,
+    "Seven Dwarfs Mine Train": 80,
+    "Tiana's Bayou Adventure": 95
+}
+
+# 3. LOGIC: The "Cost" Function (Walking + Waiting)
+def mk_cost(u, v, edge_attr):
+    walk = edge_attr.get('walking_time', 0)
+    wait = wait_times.get(v, 0)
+    return walk + wait
+
+# 4. EXECUTION: Calculate Optimal Route
+start_node = "Entrance"
+end_node = "TRON Lightcycle"
+
+path = nx.dijkstra_path(G, source=start_node, target=end_node, weight=mk_cost)
+total_mins = nx.dijkstra_path_length(G, source=start_node, target=end_node, weight=mk_cost)
+
+# 5. VISUALIZATION: Creating the Dashboard
+plt.figure(figsize=(12, 9))
+
+# Spatial coordinates for the map
+pos = {
+    "Entrance": (0, -6),
+    "Main Street Hub": (0, -2),
+    "Tomorrowland": (4, -1.5),
+    "TRON Lightcycle": (6, 1),
+    "Space Mountain": (5, 3),
+    "Adventureland": (-4, -1.5),
+    "Liberty Square": (-2, 1),
+    "Frontierland": (-4, 3.5),
+    "Tiana's Bayou Adventure": (-5.5, 5.5),
+    "Fantasyland": (0, 3.5),
+    "Seven Dwarfs Mine Train": (1, 6)
+}
+
+# Node Styling Logic
+node_colors = []
+for node in G.nodes():
+    if node in path:
+        node_colors.append("#FFD700") # Gold for Optimal Path
+    elif wait_times.get(node, 0) >= 90:
+        node_colors.append("#FF4500") # Red-Orange for high traffic
+    else:
+        node_colors.append("#ADD8E6") # Standard Blue
+
+# Draw the Graph
+nx.draw(G, pos, with_labels=True, node_color=node_colors, 
+        node_size=4000, font_size=8, font_weight='bold', width=2)
+
+# Show Wait Times with improved spacing to prevent overlap
+for node, (x, y) in pos.items():
+    wait = wait_times.get(node, 0)
+    if wait > 0:
+        plt.text(x, y-1.1, s=f"WAIT: {wait}m", fontsize=9, 
+                 ha='center', fontweight='bold',
+                 bbox=dict(facecolor='white', alpha=0.8, edgecolor='none', pad=2))
+
+plt.title(f"Magic Kingdom Logistics: Optimal Route to {end_node}", fontsize=16, pad=20)
+plt.show()
+
+print(f"Navigation Complete. Estimated Trip Time: {total_mins} minutes.")
