@@ -18,6 +18,4 @@ This project is a high-scale logistical simulation of **Walt Disney World's Magi
 ### How It Works
 The engine evaluates multiple paths between Lands (e.g., Tomorrowland to Fantasyland). If the "Castle Hub" is congested, the algorithm recalculates the route through side paths to minimize the guest's total "Time-to-Attraction."
 
----
-*Developed for the Disney Professional Internship Application.*
 
